@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "93659401661",
+    "project_id": "saveu-cd1b6",
+    "storage_bucket": "saveu-cd1b6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:93659401661:android:2fdd2ce25bf477b97a16d4",
+        "android_client_info": {
+          "package_name": "com.example.save_u"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "93659401661-tn7200qeoqu12t0m4pes768pd0ap9edv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbwOpZJIkER43AzsIzeQVsFFCo-szxOvM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "93659401661-tn7200qeoqu12t0m4pes768pd0ap9edv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
