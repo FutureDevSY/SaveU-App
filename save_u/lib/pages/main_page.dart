@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'categoryPage.dart';
+import 'package:save_u/pages/sub_categories_page.dart';
 
 class MainPage extends StatelessWidget {
   // const MainPage({required this.userEmail, super.key});
@@ -84,7 +84,8 @@ class MainPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategoryPage(),
+                              builder: (context) =>
+                                  SubCategoriesPage(categoryId: 1),
                             ),
                           );
                         },
@@ -99,7 +100,8 @@ class MainPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategoryPage(),
+                              builder: (context) =>
+                                  SubCategoriesPage(categoryId: 2),
                             ),
                           );
                         },
@@ -114,7 +116,8 @@ class MainPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategoryPage(),
+                              builder: (context) =>
+                                  SubCategoriesPage(categoryId: 3),
                             ),
                           );
                         },
@@ -150,7 +153,8 @@ class MainPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategoryPage(),
+                              builder: (context) =>
+                                  SubCategoriesPage(categoryId: 4),
                             ),
                           );
                         },
@@ -164,7 +168,8 @@ class MainPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategoryPage(),
+                              builder: (context) =>
+                                  SubCategoriesPage(categoryId: 5),
                             ),
                           );
                         },
@@ -178,7 +183,8 @@ class MainPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategoryPage(),
+                              builder: (context) =>
+                                  SubCategoriesPage(categoryId: 6),
                             ),
                           );
                         },

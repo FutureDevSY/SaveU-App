@@ -2,25 +2,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../models/safe_info.dart';
-import '../models/sub_category.dart';
 import '../sevices/safe_info_service.dart';
 import 'safe_info_detail_page.dart';
 
-class SafeInfosPage extends StatefulWidget {
-  final SubCategory subCategory;
-  const SafeInfosPage({Key? key, required this.subCategory}) : super(key: key);
+class MyScrapPage extends StatefulWidget {
+  const MyScrapPage({super.key});
 
   @override
-  State<SafeInfosPage> createState() => _SafeInfosPageState();
+  State<MyScrapPage> createState() => _MyScrapPageState();
 }
 
-class _SafeInfosPageState extends State<SafeInfosPage> {
+class _MyScrapPageState extends State<MyScrapPage> {
   late List<SafeInfo> _safeInfoList = <SafeInfo>[];
   final _safeInfoService = SafeInfoService();
 
   getSafeInfosBySubCategoryId() async {
-    var safeInfos = await _safeInfoService
-        .readSafeInfosBySubCategoryId(widget.subCategory.id ?? 0);
+    var safeInfos = await _safeInfoService.readSafeInfosByScrap();
     _safeInfoList = <SafeInfo>[];
     safeInfos.forEach((safeInfo) {
       setState(() {
@@ -45,11 +42,6 @@ class _SafeInfosPageState extends State<SafeInfosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        title: Text(widget.subCategory.name ?? "안전 정보"),
-        centerTitle: true,
-      ),
       body: ListView.builder(
           itemCount: _safeInfoList.length,
           itemBuilder: (context, index) {

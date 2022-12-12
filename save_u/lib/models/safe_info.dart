@@ -2,7 +2,7 @@ class SafeInfo {
   int? id;
   String? title;
   String? content;
-  bool? scrab;
+  int? scrap;
   String? link;
   int? subCategoryId;
 
@@ -10,7 +10,7 @@ class SafeInfo {
       {this.id,
       this.title,
       this.content,
-      this.scrab,
+      this.scrap,
       this.link,
       this.subCategoryId});
 
@@ -18,7 +18,7 @@ class SafeInfo {
       id: json['id'],
       title: json['title'],
       content: json['content'],
-      scrab: json['scrab'],
+      scrap: json['scrap'],
       link: json['link'],
       subCategoryId: json['subCategoryId']);
 
@@ -26,8 +26,18 @@ class SafeInfo {
         'id': id,
         'title': title,
         'content': content,
-        'scrab': scrab,
+        'scrap': scrap,
         'link': link,
         'subCategoryId': subCategoryId
       };
+  safeInfoMap() {
+    var mapping = Map<String, dynamic>();
+    mapping['id'] = id ?? null;
+    mapping['title'] = title!;
+    mapping['content'] = content!;
+    mapping['scrap'] = scrap ?? 1;
+    mapping['link'] = link!;
+    mapping['subCategoryId'] = subCategoryId ?? null;
+    return mapping;
+  }
 }

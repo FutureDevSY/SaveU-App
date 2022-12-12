@@ -1,18 +1,55 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:save_u/pages/mainPage.dart';
-import 'package:save_u/pages/categoryPage.dart';
-import 'package:save_u/pages/sub_categories_page.dart';
+import 'package:save_u/pages/main_page.dart';
+import 'package:save_u/pages/no_user_page.dart';
+import 'package:save_u/pages/qna_page.dart';
+import 'package:save_u/pages/safe_map_page.dart';
 import 'package:save_u/sevices/auth_service.dart';
+import 'package:save_u/pages/my_page.dart';
+import 'package:save_u/sevices/comment_service.dart';
+import 'package:save_u/sevices/question_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-void main() async {
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel',
+  'High Importance Notifcations',
+  'This channel is used important notification',
+  importance: Importance.high,
+  playSound: true,
+);
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('a background message just showed up  : ${message.messageId}');
+}
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // main 함수에서 async 사용하기 위함
   await Firebase.initializeApp(); // firebase 앱 시작
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthService()),
+        ChangeNotifierProvider(create: (context) => QuestionService()),
+        ChangeNotifierProvider(create: (context) => CommentService()),
       ],
       child: const MyApp(),
     ),
@@ -26,146 +63,104 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
-    );
-  }
-}
-
-/// 로그인 페이지
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthService>(
-      builder: (context, authService, child) {
-        final user = authService.currentUser();
-        return Scaffold(
-          appBar: AppBar(title: Text("로그인")),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                /// 현재 유저 로그인 상태
-                Center(
-                  child: Text(
-                    user == null ? "로그인해 주세요 🙂" : "${user.email}님 안녕하세요 👋",
-                    style: TextStyle(
-                      fontSize: 24,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 32),
-
-                /// 이메일
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(hintText: "이메일"),
-                ),
-
-                /// 비밀번호
-                TextField(
-                  controller: passwordController,
-                  obscureText: false, // 비밀번호 안보이게
-                  decoration: InputDecoration(hintText: "비밀번호"),
-                ),
-                SizedBox(height: 32),
-
-                /// 로그인 버튼
-                ElevatedButton(
-                  child: Text("로그인", style: TextStyle(fontSize: 21)),
-                  onPressed: () {
-                    // 로그인 성공시 HomePage로 이동
-                    authService.signIn(
-                      email: emailController.text,
-                      password: passwordController.text,
-                      onSuccess: () {
-                        // 로그인 성공
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("로그인 성공"),
-                        ));
-                        String userEmailInput =
-                            user == null ? "" : "${user.email}";
-                        // HomePage로 이동
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  HomePage(userEmail: userEmailInput)),
-                        );
-                      },
-                      onError: (err) {
-                        // 에러 발생
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(err),
-                        ));
-                      },
-                    );
-                  },
-                ),
-
-                /// 회원가입 버튼
-                ElevatedButton(
-                  child: Text("회원가입", style: TextStyle(fontSize: 21)),
-                  onPressed: () {
-                    //회원가입
-                    authService.signUp(
-                      email: emailController.text,
-                      password: passwordController.text,
-                      onSuccess: () {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("회원가입 성공"),
-                        ));
-                      },
-                      onError: (err) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(err),
-                        ));
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      home: HomePage(),
     );
   }
 }
 
 /// 홈페이지
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.userEmail}) : super(key: key);
-  final String userEmail;
+  const HomePage({Key? key}) : super(key: key);
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  // _HomePageState({required userEmail});
-  // final String _userEmail = '';
-  // @override
-  // const HomePage({super.key});
-
+  int _counter = 0;
   int _selectedIndex = 0; //변수명 앞에 언더바 붙이면 해당 클래스 내에서만 사용 가능하다는것
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channel.description,
+                color: Colors.blue,
+                playSound: true,
+              ),
+            ));
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('a new onMessageOpendeApp event was published!');
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        showDialog(
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                title: Text(notification.title!),
+                content: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [Text(notification.body!)],
+                  ),
+                ),
+              );
+            });
+      }
+    });
+  }
+
+  void showNotification() {
+    setState(() {
+      _counter++;
+    });
+    flutterLocalNotificationsPlugin.show(
+        0,
+        "Testing $_counter",
+        "How you doin ?",
+        NotificationDetails(
+            android: AndroidNotificationDetails(
+                channel.id, channel.name, channel.description,
+                importance: Importance.high,
+                color: Colors.blue,
+                playSound: true,
+                icon: '@mipmap/ic_launcher')));
+  }
+
+  // FirebaseMessaging.onNotificationOpenedApp(RemoteMessage message => {
+  //     console.log(
+  //       'Notification caused app to open from background state:',
+  //       remoteMessage.notification,
+  //     );
+  //     navigation.navigate(remoteMessage.data.type);
+  //   });
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AuthService>().currentUser();
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: [
           MainPage(),
+          user == null ? NoUserPage() : QnAPage(),
+          SafeMapPage(),
+          MyPage(),
         ], //children
       ),
       bottomNavigationBar: BottomNavigationBar(
